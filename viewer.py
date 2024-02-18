@@ -74,11 +74,18 @@ class Viewer:
             mesh_wireframe.paint_uniform_color([0.0, 0.7, 0.0])
             entities.append(mesh_wireframe)
 
-        # entities.append(o3d_objects.draw_sphere(start, 5, Color.BLACK.rgb()))
-        # entities.append(o3d_objects.draw_sphere(end, 5, Color.BLACK.rgb()))
+        sphere_radius = 1
+        # entities.append(
+        #     o3d_objects.draw_sphere(start, sphere_radius, Color.BLACK.rgb())
+        # )
+        # entities.append(o3d_objects.draw_sphere(end, sphere_radius, Color.BLACK.rgb()))
 
-        entities.append(o3d_objects.draw_sphere(start_corrected, 5, Color.BLACK.rgb()))
-        entities.append(o3d_objects.draw_sphere(end_corrected, 5, Color.BLACK.rgb()))
+        entities.append(
+            o3d_objects.draw_sphere(start_corrected, sphere_radius, Color.BLACK.rgb())
+        )
+        entities.append(
+            o3d_objects.draw_sphere(end_corrected, sphere_radius, Color.BLACK.rgb())
+        )
 
         self.run_visualization(entities)
 

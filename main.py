@@ -13,7 +13,7 @@ shape.read(input_path)
 
 mesh = o3d.io.read_triangle_mesh(mesh_filepath)
 mesh = mesh.translate((0, 0, 0))
-R = mesh.get_rotation_matrix_from_xyz((0, 0.1, 0))
+R = mesh.get_rotation_matrix_from_xyz((0, -0.2, 0))
 mesh.rotate(R, center=(0, 0, 0))
 triangle_mesh = o3d.t.geometry.TriangleMesh.from_legacy(mesh)
 stl_mesh = o3d.t.geometry.RaycastingScene()
@@ -24,7 +24,7 @@ weld_start = np.array(shape.Edges[edge_id].Vertexes[0].Point)
 weld_end = np.array(shape.Edges[edge_id].Vertexes[1].Point)
 
 teo_sensing_point_1 = weld_start + np.array([0, 50, -50])
-teo_sensing_point_2 = weld_start + np.array([0, 80, -120])
+teo_sensing_point_2 = weld_start + np.array([0, 50, -120])
 
 sensing_direction = np.array([1, 0, 0])
 sensing_start_1 = teo_sensing_point_1 - sensing_direction * 100
@@ -61,8 +61,8 @@ viewer.draw_weldment_points(
     mesh,
     weld_start,
     weld_end,
-    real_sensing_point_1,
-    real_sensing_point_2,
+    weld_start_corrected,
+    weld_end_corrected,
     mesh_filepath,
     wireframe=False,
 )
