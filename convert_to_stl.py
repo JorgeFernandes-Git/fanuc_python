@@ -2,8 +2,8 @@ import freecad
 import MeshPart
 import Part
 
-input_path = r"c:\Users\jorge\OneDrive\Desktop\SW_parts\Weld_test.STEP"
-mesh_filepath = r"c:\Users\jorge\OneDrive\Desktop\SW_parts\Weld_test.stl"
+input_path = r"c:\Users\JorgeFernandes\Desktop\SW_Parts\simple_part\simple_weld_Step_ap214.STEP"
+mesh_filepath = r"c:\Users\JorgeFernandes\Desktop\SW_Parts\simple_part\simple_weld_Step_ap214.stl"
 
 shape = Part.Shape()
 shape.read(input_path)

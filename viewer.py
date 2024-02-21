@@ -44,6 +44,7 @@ class Viewer:
             "version_major": 1,
             "version_minor": 0,
         }
+        self.entities = []
 
     def draw_weldment_points(
         self,
@@ -54,40 +55,54 @@ class Viewer:
         end_corrected,
         path_to_stl_mesh,
         wireframe=False,
+        draw_original=True,
     ):
-        entities = []
 
-        entities.append(
+        self.entities.append(
             o3d.geometry.TriangleMesh().create_coordinate_frame(
                 size=50, origin=np.array([0.0, 0.0, 0.0])
             )
         )
 
-        # mesh = o3d.io.read_triangle_mesh(path_to_stl_mesh)
-
         if not wireframe:
             mesh.compute_vertex_normals()
             mesh.paint_uniform_color([0.6, 0.6, 0.6])
-            entities.append(mesh)
+            self.entities.append(mesh)
         else:
             mesh_wireframe = o3d.geometry.LineSet.create_from_triangle_mesh(mesh)
             mesh_wireframe.paint_uniform_color([0.0, 0.7, 0.0])
-            entities.append(mesh_wireframe)
+            self.entities.append(mesh_wireframe)
 
         sphere_radius = 1
-        # entities.append(
-        #     o3d_objects.draw_sphere(start, sphere_radius, Color.BLACK.rgb())
-        # )
-        # entities.append(o3d_objects.draw_sphere(end, sphere_radius, Color.BLACK.rgb()))
+        self.entities.append(
+            o3d_objects.draw_sphere(start, sphere_radius, Color.GREEN.rgb())
+        )
+        self.entities.append(o3d_objects.draw_sphere(end, sphere_radius, Color.GREEN.rgb()))
 
-        entities.append(
+        self.entities.append(
             o3d_objects.draw_sphere(start_corrected, sphere_radius, Color.BLACK.rgb())
         )
-        entities.append(
+        self.entities.append(
             o3d_objects.draw_sphere(end_corrected, sphere_radius, Color.BLACK.rgb())
         )
 
-        self.run_visualization(entities)
+        if draw_original:
+            mesh = o3d.io.read_triangle_mesh(path_to_stl_mesh) # original part
+            mesh_wireframe = o3d.geometry.LineSet.create_from_triangle_mesh(mesh)
+            mesh_wireframe.paint_uniform_color([0.0, 0.7, 0.0])
+            self.entities.append(mesh_wireframe)
+
+        self.run_visualization(self.entities)
+
+    def draw_sensing_arrows(self, start_point_1, start_point_2, direction, real_sensing_point_1, real_sensing_point_2):
+        sphere_radius = 1
+        self.entities.append(o3d_objects.draw_sphere(start_point_1, sphere_radius, Color.BLUE.rgb()))
+        self.entities.append(o3d_objects.draw_sphere(start_point_2, sphere_radius, Color.BLUE.rgb()))
+        self.entities.append(o3d_objects.draw_sphere(real_sensing_point_1, sphere_radius, Color.BLUE.rgb()))
+        self.entities.append(o3d_objects.draw_sphere(real_sensing_point_2, sphere_radius, Color.BLUE.rgb()))
+
+        self.entities.append(o3d_objects.draw_arrow_from_direction(direction, start_point_1,scale=5,cylinder_height=80))
+        self.entities.append(o3d_objects.draw_arrow_from_direction(direction, start_point_2,scale=5,cylinder_height=80))
 
     def run_visualization(self, entities):
         o3d.visualization.draw_geometries(
