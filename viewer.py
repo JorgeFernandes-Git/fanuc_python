@@ -80,10 +80,10 @@ class Viewer:
         self.entities.append(o3d_objects.draw_sphere(end, sphere_radius, Color.GREEN.rgb()))
 
         self.entities.append(
-            o3d_objects.draw_sphere(start_corrected, sphere_radius, Color.BLACK.rgb())
+            o3d_objects.draw_sphere(start_corrected, sphere_radius*1.5, Color.BLACK.rgb())
         )
         self.entities.append(
-            o3d_objects.draw_sphere(end_corrected, sphere_radius, Color.BLACK.rgb())
+            o3d_objects.draw_sphere(end_corrected, sphere_radius*1.5, Color.BLACK.rgb())
         )
 
         if draw_original:

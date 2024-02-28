@@ -14,8 +14,8 @@ shape.read(input_path)
 mesh = o3d.io.read_triangle_mesh(mesh_filepath)
 
 # Apply rotation and translation 
-mesh = mesh.translate((0, 0, 0))
-R = mesh.get_rotation_matrix_from_xyz((0, 0.2, 0.2))
+mesh = mesh.translate((0, -20, 20))
+R = mesh.get_rotation_matrix_from_xyz((0, -0.1, -0.1))
 mesh.rotate(R, center=(0, 0, 0))
 
 triangle_mesh = o3d.t.geometry.TriangleMesh.from_legacy(mesh)
@@ -55,14 +55,14 @@ rays_results = stl_mesh.cast_rays(rays_to_cast)
 t_hits = rays_results["t_hit"].numpy()
 real_sensing_point_2 = sensing_start_2 + sensing_direction * t_hits[0]
 
-_, _, transformation_matrix_z = compute_correction(
+_, _, rotation_matrix_y, translation_matrix_y = compute_correction(
     weld_start,
     weld_end,
     teo_sensing_point_1,
     real_sensing_point_1,
     teo_sensing_point_2,
     real_sensing_point_2,
-    axis="z",
+    axis="y",
 )
 
 viewer.draw_sensing_arrows(
@@ -100,14 +100,14 @@ rays_results = stl_mesh.cast_rays(rays_to_cast)
 t_hits = rays_results["t_hit"].numpy()
 real_sensing_point_2 = sensing_start_2 + sensing_direction * t_hits[0]
 
-_, _, transformation_matrix_y = compute_correction(
+_, _, rotation_matrix_z, translation_matrix_z = compute_correction(
     weld_start,
     weld_end,
     teo_sensing_point_1,
     real_sensing_point_1,
     teo_sensing_point_2,
     real_sensing_point_2,
-    axis="y"
+    axis="z" # axis of rotation...
 )
 
 viewer.draw_sensing_arrows(
@@ -120,12 +120,24 @@ viewer.draw_sensing_arrows(
 
 weld_start_homogeneous = np.append(weld_start, 1)
 weld_end_homogeneous = np.append(weld_end, 1)
-weld_start_corrected = np.dot(transformation_matrix_y, np.dot(transformation_matrix_z, weld_start_homogeneous))[:3]
-weld_end_corrected = np.dot(transformation_matrix_y, np.dot(transformation_matrix_z, weld_end_homogeneous))[:3]
+
+weld_start_corrected = np.dot(translation_matrix_z, weld_start_homogeneous)
+weld_end_corrected = np.dot(translation_matrix_z, weld_end_homogeneous)
+
+weld_start_corrected = np.dot(translation_matrix_y, weld_start_corrected)
+weld_end_corrected = np.dot(translation_matrix_y, weld_end_corrected)
+
+weld_start_corrected = np.dot(rotation_matrix_z, weld_start_corrected)
+weld_end_corrected = np.dot(rotation_matrix_z, weld_end_corrected)
+
+weld_start_corrected = np.dot(rotation_matrix_y, weld_start_corrected)
+weld_end_corrected = np.dot(rotation_matrix_y, weld_end_corrected)
+
+# weld_start_corrected = np.dot(transformation_matrix_y, np.dot(transformation_matrix_z, weld_start_homogeneous))[:3]
+# weld_end_corrected = np.dot(transformation_matrix_y, np.dot(transformation_matrix_z, weld_end_homogeneous))[:3]
 
 print(f"weldment start point: {weld_start}")
 print(f"weldment end point: {weld_end}")
-
 print(f"Corrected start point: {weld_start_corrected}")
 print(f"Corrected end point: {weld_end_corrected}")
 

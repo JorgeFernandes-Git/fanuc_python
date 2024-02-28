@@ -67,74 +67,54 @@ def compute_correction(weld_start, weld_end, teo_sensing_point_1, real_sensing_p
     offset_1 = real_sensing_point_1 - teo_sensing_point_1
     offset_2 = real_sensing_point_2 - teo_sensing_point_2
 
-    # this only corrects translation, but not rotation...
-    # weld_start_corrected = copy.deepcopy(weld_start)
-    # weld_end_corrected = copy.deepcopy(weld_end)
-    # weld_start_corrected[1] = weld_start[1] + offset_1[1]
-    # weld_end_corrected[1] = weld_end[1] + offset_2[1]
-
     offset_between_points = offset_2 - offset_1
     hypotenuse = np.linalg.norm(real_sensing_point_2 - real_sensing_point_1)
     
-    if axis == "y":
+    if axis == "z":
         angle = np.arcsin(offset_between_points[2] / hypotenuse) * 180 / np.pi
-    elif axis== "z":
+    elif axis== "y":
         angle = np.arcsin(offset_between_points[1] / hypotenuse) * 180 / np.pi
 
     print(f"Angle deviation on part for axis {axis}: {angle}")
 
-    weld_length = np.linalg.norm(weld_end-weld_start)
-
-    # Angle deviation on part for axis z: 11.23660241459323
-    # [ 1.94860978 -9.80830872  0.        ]
-    # Angle deviation on part for axis y: -11.459151798640878
-    # [ 1.98669261 -0.          9.80066592]
-
-    # compute frame
-    y_vector = normalize_vector(calculate_vector_direction(real_sensing_point_1, real_sensing_point_2))
-    if axis == "z":
-        z_vector = [0,0,1]
-    elif axis == "y":
-        z_vector = [0,1,0]
-
-    x_vector = np.cross(y_vector, z_vector)
-
-    frame = np.column_stack([x_vector, y_vector, z_vector, np.zeros_like(x_vector)])
-    frame = np.vstack([frame, [0, 0, 0, 1]])
-
-    # Create a 4x4 identity matrix
-    transformation_matrix = np.eye(4)
-
     # Apply rotation
     if axis == "x":
         rotation_matrix = rotate_x(angle)
-    elif axis == "y":
-        rotation_matrix = rotate_y(-angle)
     elif axis == "z":
+        rotation_matrix = rotate_y(-angle)
+    elif axis == "y":
         rotation_matrix = rotate_z(angle)
 
-    transformation_matrix[:3, :3] = rotation_matrix[:3, :3]
+    rotation_matrix_homogeneous = np.eye(4)
+    rotation_matrix_homogeneous[:3, :3] = rotation_matrix[:3, :3]
 
-    # Apply translation
-    # Compute translation vector from teo sensing points to real sensing points
-    # this is not working and its giving bad results
+    # rotate point to original rotation in order to compute translation
+    inv_rotation_matrix = np.linalg.inv(rotation_matrix)
+    unrotated_real_sensing_point_1 = np.dot( inv_rotation_matrix, np.append(real_sensing_point_1, 1))[:3]
 
-    # offset_mean = (offset_1 + offset_2)/2
-    # translation_vector = 10*x_vector
-    translation_vector = [0, 0, 0]  
-    # rotated_translation_vector = np.dot(rotation_matrix[:3, :3], translation_vector)
-    rotated_translation_vector = translation_vector
-        
-    print(rotated_translation_vector)
+    displacement = unrotated_real_sensing_point_1-teo_sensing_point_1
+    
+    if axis == "z":
+        z_displacement = displacement[2]
+        print(f"displacement in z: {z_displacement}")
+        translation_vector = [0, 0, z_displacement]
+    elif axis == "y":
+        y_displacement = displacement[1]
+        print(f"displacement in y: {y_displacement}")
+        translation_vector = [0, y_displacement, 0]
+    
+    translation_matrix_homogeneous = np.eye(4)
+    translation_matrix_homogeneous[:3, 3] = translation_vector
 
-    transformation_matrix[:3, 3] = rotated_translation_vector 
-
-    # Apply transformation to weld points
+    # Apply transformations to weld points
     weld_start_homogeneous = np.append(weld_start, 1)
     weld_end_homogeneous = np.append(weld_end, 1)
 
-    weld_start_corrected = np.dot(transformation_matrix, weld_start_homogeneous)[:3]
-    weld_end_corrected = np.dot(transformation_matrix, weld_end_homogeneous)[:3]
+    weld_start_corrected = np.dot(translation_matrix_homogeneous, weld_start_homogeneous)
+    weld_end_corrected = np.dot(translation_matrix_homogeneous, weld_end_homogeneous)
+
+    weld_start_corrected = np.dot(rotation_matrix_homogeneous, weld_start_corrected)[:3]
+    weld_end_corrected = np.dot(rotation_matrix_homogeneous, weld_end_corrected)[:3]
 
     # print(f"weldment start point: {weld_start}")
     # print(f"weldment end point: {weld_end}")
@@ -142,4 +122,4 @@ def compute_correction(weld_start, weld_end, teo_sensing_point_1, real_sensing_p
     # print(f"Corrected start point: {weld_start_corrected}")
     # print(f"Corrected end point: {weld_end_corrected}")
 
-    return weld_start_corrected, weld_end_corrected, transformation_matrix
+    return weld_start_corrected, weld_end_corrected, rotation_matrix_homogeneous, translation_matrix_homogeneous
