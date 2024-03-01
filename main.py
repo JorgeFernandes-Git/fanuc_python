@@ -4,13 +4,13 @@ import open3d as o3d
 import numpy as np
 from viewer import Viewer
 from compute_correction import compute_correction
+from compute_correction_non_orthogonal import compute_correction_non_orthogonal
 
 # input_path = r"c:\Users\JorgeFernandes\Desktop\SW_Parts\simple_part\simple_weld_Step_ap214.STEP"
 # mesh_filepath = r"c:\Users\JorgeFernandes\Desktop\SW_Parts\simple_part\simple_weld_Step_ap214.stl"
 
 """
 with 6 touches, 2 in Y, Z and X we can compute rotation over vertical axis (here is the Y axis) and translation in XYZ
-
 With 4 touches, 2 in Y and Z we can compute the rotation and translation over Vertical and longitudinal axis (but no lateral translation)
 """
 
@@ -25,19 +25,19 @@ shape.read(input_path)
 mesh = o3d.io.read_triangle_mesh(mesh_filepath)
 
 if use_six_touches:
-    x_translation = -10
-    y_translation = -10
+    x_translation = 10
+    y_translation = 10
     z_translation = -10
     x_rotation = 0
-    y_rotation = 0.1
+    y_rotation = -0.1
     z_rotation = 0
 else:
     x_translation = 0
-    y_translation = -10
-    z_translation = -10
+    y_translation = 10
+    z_translation = 10
     x_rotation = 0
-    y_rotation = 0.1
-    z_rotation = 0.1
+    y_rotation = -0.1
+    z_rotation = -0.1
 
 # Apply rotation and translation 
 mesh = mesh.translate((x_translation, y_translation, z_translation))
@@ -93,6 +93,17 @@ _, _, rotation_matrix_y, translation_matrix_y = compute_correction(
     axis="y",
 )
 
+# _, _, rotation_matrix_y, translation_matrix_y = compute_correction_non_orthogonal(
+#     weld_start,
+#     weld_end,
+#     teo_sensing_point_1,
+#     real_sensing_point_1,
+#     sensing_start_1,
+#     teo_sensing_point_2,
+#     real_sensing_point_2,
+#     axis="y",
+# )
+
 viewer.draw_sensing_arrows(
     sensing_start_1, 
     sensing_start_2, 
@@ -135,8 +146,19 @@ _, _, rotation_matrix_z, translation_matrix_z = compute_correction(
     real_sensing_point_1,
     teo_sensing_point_2,
     real_sensing_point_2,
-    axis="z" # axis of rotation...
+    axis="z",
 )
+
+# _, _, rotation_matrix_z, translation_matrix_z = compute_correction_non_orthogonal(
+#     weld_start,
+#     weld_end,
+#     teo_sensing_point_1,
+#     real_sensing_point_1,
+#     sensing_start_1,
+#     teo_sensing_point_2,
+#     real_sensing_point_2,
+#     axis="z" # axis of rotation...
+# )
 
 viewer.draw_sensing_arrows(
     sensing_start_1, 
@@ -174,15 +196,26 @@ if use_six_touches:
     t_hits = rays_results["t_hit"].numpy()
     real_sensing_point_2 = sensing_start_2 + sensing_direction * t_hits[0]
 
-    teo_sensing_point_1, unrotated_real_sensing_point_1, rotation_matrix_x, translation_matrix_x = compute_correction(
+    _, _, _, translation_matrix_x = compute_correction(
         weld_start,
         weld_end,
         teo_sensing_point_1,
         real_sensing_point_1,
         teo_sensing_point_2,
         real_sensing_point_2,
-        axis="x" # axis of rotation...
+        axis="x",
     )
+
+    # _, _, _, translation_matrix_x = compute_correction_non_orthogonal(
+    #     weld_start,
+    #     weld_end,
+    #     teo_sensing_point_1,
+    #     real_sensing_point_1,
+    #     sensing_start_1,
+    #     teo_sensing_point_2,
+    #     real_sensing_point_2,
+    #     axis="x" # axis of rotation...
+    # )
 
     viewer.draw_sensing_arrows(
         sensing_start_1, 
