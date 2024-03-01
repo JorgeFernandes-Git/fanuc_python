@@ -1,18 +1,14 @@
 import numpy as np
 
-# Define the translation matrix
-translation_matrix = np.array([[1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
-                               [0.00000000e+00, 1.00000000e+00, 0.00000000e+00, 1.36156477e-06],
-                               [0.00000000e+00, 0.00000000e+00, 1.00000000e+00, 0.00000000e+00],
-                               [0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
+point_21 = np.array([1070.142, -32.105, 19.636])
+point_31 = np.array([1040.137, -32.112, -31.857])
 
-# Define the rotation matrix
-rotation_matrix = np.array([[ 0.98006658, -0.19866933,  0.        ,  0.        ],
-                            [ 0.19866933,  0.98006658,  0.        ,  0.        ],
-                            [ 0.        ,  0.        ,  1.        ,  0.        ],
-                            [ 0.        ,  0.        ,  0.        ,  1.        ]])
+sub = point_21 - point_31
 
-# Combine translation and rotation into a single transformation matrix
-transformation_matrix = np.dot(translation_matrix, rotation_matrix)
+prev_prev = sub*sub
 
-# Now you have the combined transformation matrix
+prev = prev_prev[0]+prev_prev[1]+prev_prev[2]
+
+result = np.linalg.norm(point_21-point_31)
+
+print(result)

@@ -70,19 +70,21 @@ def compute_correction(weld_start, weld_end, teo_sensing_point_1, real_sensing_p
     offset_between_points = offset_2 - offset_1
     hypotenuse = np.linalg.norm(real_sensing_point_2 - real_sensing_point_1)
     
-    if axis == "z":
-        angle = np.arcsin(offset_between_points[2] / hypotenuse) * 180 / np.pi
-    elif axis== "y":
-        angle = np.arcsin(offset_between_points[1] / hypotenuse) * 180 / np.pi
+    # if axis == "z":
+    #     angle = np.arcsin(offset_between_points[2] / hypotenuse) * 180 / np.pi
+    # elif axis== "y":
+    #     angle = np.arcsin(offset_between_points[1] / hypotenuse) * 180 / np.pi
+
+    angle = np.arcsin(max(offset_between_points, key=abs)/hypotenuse)*180/np.pi
 
     print(f"Angle deviation on part for axis {axis}: {angle}")
 
     # Apply rotation
     if axis == "x":
-        rotation_matrix = rotate_x(angle)
-    elif axis == "z":
-        rotation_matrix = rotate_y(-angle)
+        rotation_matrix = rotate_y(angle)
     elif axis == "y":
+        rotation_matrix = rotate_y(-angle)
+    elif axis == "z":
         rotation_matrix = rotate_z(angle)
 
     rotation_matrix_homogeneous = np.eye(4)
@@ -90,18 +92,22 @@ def compute_correction(weld_start, weld_end, teo_sensing_point_1, real_sensing_p
 
     # rotate point to original rotation in order to compute translation
     inv_rotation_matrix = np.linalg.inv(rotation_matrix)
-    unrotated_real_sensing_point_1 = np.dot( inv_rotation_matrix, np.append(real_sensing_point_1, 1))[:3]
+    unrotated_real_sensing_point_1 = np.dot(inv_rotation_matrix, np.append(real_sensing_point_1, 1))[:3]
 
     displacement = unrotated_real_sensing_point_1-teo_sensing_point_1
     
-    if axis == "z":
+    if axis == "y":
         z_displacement = displacement[2]
         print(f"displacement in z: {z_displacement}")
         translation_vector = [0, 0, z_displacement]
-    elif axis == "y":
+    elif axis == "z":
         y_displacement = displacement[1]
         print(f"displacement in y: {y_displacement}")
         translation_vector = [0, y_displacement, 0]
+    elif axis == "x":
+        x_displacement = displacement[0]
+        print(f"displacement in x: {x_displacement}")
+        translation_vector = [x_displacement, 0, 0]
     
     translation_matrix_homogeneous = np.eye(4)
     translation_matrix_homogeneous[:3, 3] = translation_vector
