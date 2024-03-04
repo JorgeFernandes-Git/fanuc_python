@@ -1,0 +1,7 @@
+:!RESULT PR;
+:R[151]=AR[1];
+:!POINT TO BE ROTATED;
+:R[152]=AR[2];
+:!ANGLE;
+:R[153]=AR[3];
+

@@ -27,9 +27,9 @@ mesh = o3d.io.read_triangle_mesh(mesh_filepath)
 if use_six_touches:
     x_translation = 10
     y_translation = 10
-    z_translation = -10
+    z_translation = 10
     x_rotation = 0
-    y_rotation = -0.1
+    y_rotation = 0.2
     z_rotation = 0
 else:
     x_translation = 0

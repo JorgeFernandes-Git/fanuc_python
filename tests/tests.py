@@ -13,8 +13,26 @@ import numpy as np
 
 # print(result)
 
-offset = 29.639
-offset_hypo = offset/59.59
+################################################
 
-result = np.rad2deg(np.arcsin(offset_hypo))
-print(result)
+# offset = 29.639
+# offset_hypo = offset/59.59
+
+# result = np.rad2deg(np.arcsin(offset_hypo))
+# print(result)
+
+################################################
+
+point = np.array([1070.458, -3.570, -31.96])
+angle = 4.915
+
+x, y, z = point
+angle_rad = np.deg2rad(angle)
+x_prime = x * np.cos(angle_rad) - y * np.sin(angle_rad)
+y_prime = x * np.sin(angle_rad) + y * np.cos(angle_rad)
+z_prime = z
+
+print(x_prime)
+print(y_prime)
+print(z_prime)
+
